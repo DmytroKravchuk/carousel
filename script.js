@@ -3,8 +3,18 @@
 class Carousel {
     constructor(carousel, props) {
         this.carousel = document.querySelector(carousel);
-        this.carouselItems = this.carousel.getElementsByClassName('carousel-item');
-        this.props = props;
+        this.carouselVisiblePart = this.carousel.querySelector('.carousel-list');
+        this.carouselTrack = this.carouselVisiblePart.getElementsByClassName('carousel-track')[0];
+        this.carouselItems = this.carousel.querySelectorAll('.carousel-item');
+
+
+        this.props = {
+            step: props.step || 1,
+            display: props.display || 3,
+            width: props.width || window.getComputedStyle(this.carouselItems[0], null).width,
+            loop: props.loop || false,
+            ...props
+        };
     }
 
     events = {
@@ -15,7 +25,7 @@ class Carousel {
                 handler: this.goTo
             }
         ]
-    }
+    };
 
     navigationTo(targets) {
         targets.forEach(element => {
@@ -26,11 +36,28 @@ class Carousel {
     }
 
     goTo() {
-        console.log(1111111111)
+
+    }
+
+    calcPosition() {
+        let trackWidth = parseFloat(this.props.width) * this.carouselItems.length;
+        let widthCarouselVisiblePart = parseFloat(window.getComputedStyle(this.carouselVisiblePart, null).width);
+        let marginItem = '';
+        console.log(widthCarouselVisiblePart);
+
+        return {
+            trackWidth: trackWidth
+        }
+    }
+
+    setStartPosition() {
+        let { trackWidth } = this.calcPosition();
+        this.carouselTrack.style.width = trackWidth + 'px';
     }
 
     init() {
-        this.navigationTo([this.events.clickNav])
+        this.setStartPosition();
+        this.navigationTo([this.events.clickNav]);
     }
 
     destroy() {
@@ -43,6 +70,11 @@ class Carousel {
     }
 }
 
-let carousel = new Carousel('.carousel-wrapper', {});
+let carousel = new Carousel('.carousel-wrapper', {
+    step: 2,
+    display: 3,
+    loop: false
+});
+
 carousel.init();
 //carousel.destroy();
