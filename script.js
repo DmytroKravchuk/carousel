@@ -35,10 +35,11 @@ class Carousel {
     }
 
     goTo(e) {
+        let { step } = this.props;
         if (e.target.classList.contains('arrow-next')) {
-            this.carouselTrack.style.transform = `translateX(${this.getCurrentPositionTrack() - this.fullSpaceItem * this.props.step}px)`;
+            this.carouselTrack.style.transform = `translateX(${this.getCurrentPositionTrack() - this.fullSpaceItem * this.calcMovingStep(step, 'next')}px)`;
         } else if (e.target.classList.contains('arrow-prev')){
-            this.carouselTrack.style.transform = `translateX(${this.getCurrentPositionTrack() + this.fullSpaceItem * this.props.step}px)`;
+            this.carouselTrack.style.transform = `translateX(${this.getCurrentPositionTrack() + this.fullSpaceItem * this.calcMovingStep(step, 'prev')}px)`;
         }
     }
 
@@ -47,6 +48,45 @@ class Carousel {
         return matrix.m41;
     }
 
+
+    calcMovingStep(step, direction) {
+        //TODO: need to do
+        let { firstActiveIndex, lastActiveIndex } = this.getFirstLastActiveIndex();
+        let lastIndex = this.carouselItems[this.carouselItems.length - 1].getAttribute('data-item-index');
+
+        if(direction === 'prev') {
+
+        } else if(direction === 'next') {
+
+        }
+
+        return step;
+    }
+
+    getActiveItems() {
+        return Array.from(this.carouselItems).filter(item => item.classList.contains('active'));
+    }
+
+    getFirstLastActiveIndex() {
+        let currentActiveItems = this.getActiveItems();
+        return {
+            firstActiveIndex: currentActiveItems[0].getAttribute('data-item-index'),
+            lastActiveIndex: currentActiveItems[currentActiveItems.length - 1].getAttribute('data-item-index')
+        };
+    }
+
+    setActiveItems(from, to) {
+        Array.from(this.carouselItems).forEach((item) => {
+            let dataIndex = parseInt(item.getAttribute('data-item-index'));
+            if(dataIndex >= from && dataIndex < to) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    resetActiveItems() {
+        Array.from(this.carouselItems).forEach(item => item.classList.remove('active'));
+    }
 
     calcPosition() {
         let trackWidth = parseFloat(this.props.width) * this.carouselItems.length;
@@ -60,15 +100,19 @@ class Carousel {
         }
     }
 
-    setStartPosition() {
+    setStartSettings() {
         let { trackWidth, marginItem } = this.calcPosition();
 
         this.carouselTrack.style.width = trackWidth + 'px';
-        Array.from(this.carouselItems).forEach(item => item.style.margin = `0 ${marginItem}px`);
+        Array.from(this.carouselItems).forEach((item, index) => {
+            item.style.margin = `0 ${marginItem}px`;
+            item.setAttribute('data-item-index', index);
+        });
+        this.setActiveItems(0, this.props.display);
     }
 
     init() {
-        this.setStartPosition();
+        this.setStartSettings();
         this.navigationTo([this.events.clickNav]);
     }
 
