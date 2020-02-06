@@ -50,14 +50,20 @@ class Carousel {
 
 
     calcMovingStep(step, direction) {
-        //TODO: need to do
         let { firstActiveIndex, lastActiveIndex } = this.getFirstLastActiveIndex();
         let lastIndex = this.carouselItems[this.carouselItems.length - 1].getAttribute('data-item-index');
 
         if(direction === 'prev') {
-
+            if(+firstActiveIndex === 0) return 0;
         } else if(direction === 'next') {
+            if(+lastActiveIndex === +lastIndex || ((+firstActiveIndex || +lastActiveIndex) > +lastIndex)) return 0;
+            this.resetActiveItems();
+            this.setActiveItems(++lastActiveIndex, +lastActiveIndex + step);
 
+            if (Math.abs(+lastActiveIndex + step - +lastIndex) < step) {
+                debugger
+                return step - (+lastActiveIndex + step - +lastIndex);
+            }
         }
 
         return step;
@@ -127,8 +133,8 @@ class Carousel {
 }
 
 let carousel = new Carousel('.carousel-wrapper', {
-    step: 1,
-    display: 4,
+    step: 3,
+    display: 3,
     loop: false
 });
 
