@@ -51,21 +51,22 @@ class Carousel {
 
     calcMovingStep(step, direction) {
         let { firstActiveIndex, lastActiveIndex } = this.getFirstLastActiveIndex();
-		let currentFirstActiveIndex, currentLastActiveIndex;
 		let lastIndex = this.carouselItems[this.carouselItems.length - 1].getAttribute('data-item-index');
 
         if(direction === 'prev') {
-            if(+firstActiveIndex === 0) return 0;
+            if(+firstActiveIndex <= 0) return 0;
+            this.resetActiveItems();
+            if (Math.abs(+firstActiveIndex - step) < step && +firstActiveIndex - step < 0) {
+                step = step - Math.abs(+firstActiveIndex - step);
+            }
+            this.setActiveItems(+firstActiveIndex - step, +lastActiveIndex - step);
         } else if(direction === 'next') {
             if(+lastActiveIndex === +lastIndex || ((+firstActiveIndex || +lastActiveIndex) > +lastIndex)) return 0;
             this.resetActiveItems();
-			currentFirstActiveIndex = +lastActiveIndex;
-			currentLastActiveIndex = +lastActiveIndex;
-            this.setActiveItems(++lastActiveIndex, +lastActiveIndex + step);
-
-            if (Math.abs(currentFirstActiveIndex + step - +lastIndex) < step) {
-                return step - Math.abs(currentLastActiveIndex + step - +lastIndex);
+            if (Math.abs(+firstActiveIndex + step - +lastIndex) < step && +lastActiveIndex + step - +lastIndex > 0) {
+                step = step - Math.abs(+lastActiveIndex + step - +lastIndex);
             }
+            this.setActiveItems(+firstActiveIndex + step, +lastActiveIndex + step);
         }
 
         return step;
@@ -86,7 +87,7 @@ class Carousel {
     setActiveItems(from, to) {
         Array.from(this.carouselItems).forEach((item) => {
             let dataIndex = parseInt(item.getAttribute('data-item-index'));
-            if(dataIndex >= from && dataIndex < to) {
+            if(dataIndex >= from && dataIndex <= to) {
                 item.classList.add('active');
             }
         });
@@ -116,7 +117,7 @@ class Carousel {
             item.style.margin = `0 ${marginItem}px`;
             item.setAttribute('data-item-index', index);
         });
-        this.setActiveItems(0, this.props.display);
+        this.setActiveItems(0, this.props.display - 1);
     }
 
     init() {
